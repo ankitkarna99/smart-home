@@ -35,4 +35,98 @@
             </div>
         </div>
     </div>
+    <div class="col-md-6 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Voice Commands</h4>
+                <p class="card-description"></p>
+                <button id="btnGiveCommand" class="btn btn-gradient-primary mb-3">Give Voice Command</button>
+                <div id="message"></div>
+                Select Voice: <select id='voiceList'></select> <br><br>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    var message = document.querySelector('#message');
+
+    var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition;
+    var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList;
+
+    var grammar = '#JSGF V1.0;'
+
+    var recognition = new SpeechRecognition();
+    var speechRecognitionList = new SpeechGrammarList();
+    speechRecognitionList.addFromString(grammar, 1);
+    recognition.grammars = speechRecognitionList;
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+
+    recognition.onresult = function (event) {
+        var last = event.results.length - 1;
+        var command = event.results[last][0].transcript;
+        message.textContent = 'Voice Input: ' + command + '.';
+
+        if (command.toLowerCase().includes("weather")) {
+            speak("Getting weather information for you.");
+            fetch("http://api.openweathermap.org/data/2.5/weather?q=Dhulikhel,np&APPID=c6e2426b5232a63759387b5d5268cac6").then(response => {
+                return response.json()
+            }).then(response => {
+                console.log(response);
+                speak("The weather currently is " + response.weather[0].description + ". Temperature is " + (response.main.temp - 273.15) + " degrees");
+            })
+        }
+
+
+        console.log(command);
+    };
+
+    recognition.onspeechend = function () {
+        recognition.stop();
+    };
+
+    recognition.onerror = function (event) {
+        message.textContent = 'Error occurred in recognition: ' + event.error;
+    }
+
+    document.querySelector('#btnGiveCommand').addEventListener('click', function () {
+        recognition.start();
+    });
+
+    var synth = window.speechSynthesis;
+    var voices = [];
+    var voiceList = document.querySelector('#voiceList');
+
+    PopulateVoices();
+    if (speechSynthesis !== undefined) {
+        speechSynthesis.onvoiceschanged = PopulateVoices;
+    }
+
+    function speak(text) {
+        var toSpeak = new SpeechSynthesisUtterance(text);
+        var selectedVoiceName = voiceList.selectedOptions[0].getAttribute('data-name');
+        voices.forEach((voice) => {
+            if (voice.name === selectedVoiceName) {
+                toSpeak.voice = voice;
+            }
+        });
+        synth.speak(toSpeak);
+    };
+
+    function PopulateVoices() {
+        voices = synth.getVoices();
+        var selectedIndex = voiceList.selectedIndex < 0 ? 0 : voiceList.selectedIndex;
+        voiceList.innerHTML = '';
+        voices.forEach((voice) => {
+            var listItem = document.createElement('option');
+            listItem.textContent = voice.name;
+            listItem.setAttribute('data-lang', voice.lang);
+            listItem.setAttribute('data-name', voice.name);
+            voiceList.appendChild(listItem);
+        });
+
+        voiceList.selectedIndex = selectedIndex;
+    }
+
+</script>
