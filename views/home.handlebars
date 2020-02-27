@@ -68,6 +68,16 @@
         var command = event.results[last][0].transcript;
         message.textContent = 'Voice Input: ' + command + '.';
 
+        if (command.toLowerCase().includes("on") && command.toLowerCase().includes("light")) {
+            speak("Turning on the lights.");
+            fetch("/command/turn on lights");
+        }
+
+        if (command.toLowerCase().includes("off") && command.toLowerCase().includes("light")) {
+            speak("Turning off the lights.");
+            fetch("/command/turn off lights");
+        }
+
         if (command.toLowerCase().includes("weather")) {
             speak("Getting weather information for you.");
             fetch("http://api.openweathermap.org/data/2.5/weather?q=Dhulikhel,np&APPID=c6e2426b5232a63759387b5d5268cac6").then(response => {
