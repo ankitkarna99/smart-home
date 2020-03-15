@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const {getWaterLevel} = require("./commandController");
 
 exports.loginUser = async (req, res) => {
   const { username, password } = req.body;
@@ -29,8 +30,17 @@ exports.loginPage = async (req, res) => {
   res.render("login", { layout: false });
 };
 
+exports.waterLevel = async (req, res)=>{
+  res.json({
+    tankStatus: getWaterLevel() < 100 ? "Not Full, Motor Running" : "Full, Motor Stopped",
+  })
+}
+
 exports.homePage = async (req, res) => {
-  res.render("home");
+  res.render("home", {
+    tankStatus: getWaterLevel() < 100 ? "Not Full, Motor Running" : "Full, Motor Stopped",
+
+  });
 };
 
 exports.logoutUser = async (req, res) => {

@@ -7,5 +7,6 @@ router.get("/logout", loginController.logoutUser);
 router.get("/home", auth, loginController.homePage);
 router.get("/login", loginController.loginPage);
 router.post("/login", loginController.loginUser);
+router.get("/waterLevel", auth, loginController.waterLevel);
 
 module.exports = router;

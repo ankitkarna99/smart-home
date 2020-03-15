@@ -32,6 +32,8 @@
                                 style="width: 100%;">Turn Off Lights</button></a>
                     </div>
                 </div>
+                <br>
+                <h4 class="card-title">Tank Status: <span id='tankStatus'>{{tankStatus}}</span></h4>
             </div>
         </div>
     </div>
@@ -80,11 +82,20 @@
 
         if (command.toLowerCase().includes("weather")) {
             speak("Getting weather information for you.");
-            fetch("http://api.openweathermap.org/data/2.5/weather?q=Dhulikhel,np&APPID=c6e2426b5232a63759387b5d5268cac6").then(response => {
+            fetch("http://api.openweathermap.org/data/2.5/weather?q=Harbin,cn&APPID=c6e2426b5232a63759387b5d5268cac6").then(response => {
                 return response.json()
             }).then(response => {
                 console.log(response);
                 speak("The weather currently is " + response.weather[0].description + ". Temperature is " + (response.main.temp - 273.15) + " degrees");
+            })
+        }
+
+        if (command.toLowerCase().includes("temperature")) {
+            fetch("http://api.openweathermap.org/data/2.5/weather?q=Harbin,cn&APPID=c6e2426b5232a63759387b5d5268cac6").then(response => {
+                return response.json()
+            }).then(response => {
+                console.log(response);
+                speak("The temperature currently is " + (response.main.temp - 273.15) + " degrees");
             })
         }
 
@@ -138,5 +149,17 @@
 
         voiceList.selectedIndex = selectedIndex;
     }
+
+    function getWaterLevel() {
+        fetch('/waterLevel')
+            .then((response) => {
+                return response.json();
+            })
+            .then((data) => {
+                document.getElementById("tankStatus").innerHTML = data.tankStatus
+            });
+    }
+
+    setInterval(getWaterLevel, 100);
 
 </script>
